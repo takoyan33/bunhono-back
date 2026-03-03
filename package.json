@@ -1,6 +1,5 @@
 {
   "name": "my-hono-api",
-  "type": "module",
   "scripts": {
     "dev": "bun run src/server.ts"
   },
