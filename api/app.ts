@@ -18,3 +18,24 @@ app.get("/users", async (c) => {
   const users = await sql`SELECT * FROM users`;
   return c.json(users);
 });
+
+app.get("/users/:id", async (c) => {
+  const id = c.req.param("id");
+  const users = await sql`SELECT * FROM users WHERE id = ${id}`;
+  return c.json(users);
+});
+
+app.post("/users/add", async (c) => {
+  const body = await c.req.parseBody();
+  const name = body["name"];
+  const email = body["email"];
+
+  if (!name || !email) {
+    return c.json({ message: "name と email は必須です" }, 400);
+  }
+
+  const users =
+    await sql`INSERT INTO users (name, email) VALUES (${name}, ${email}) RETURNING *`;
+
+  return c.json(users[0], 201);
+});

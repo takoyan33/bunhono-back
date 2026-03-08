@@ -1,7 +1,8 @@
 {
   "name": "my-hono-api",
   "scripts": {
-    "dev": "bun run lib/server.ts"
+    "dev": "bun run lib/server.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.10",
