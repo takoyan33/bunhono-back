@@ -7,8 +7,11 @@
   "dependencies": {
     "@hono/node-server": "^1.19.10",
     "@neondatabase/serverless": "^1.0.2",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
-    "hono": "^4.12.4"
+    "hono": "^4.12.4",
+    "vitest": "^4.1.5"
   },
   "devDependencies": {
     "@types/bun": "latest"
