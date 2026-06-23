@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { neon } from "@neondatabase/serverless";
 import * as bcrypt from "bcrypt";
 
@@ -17,17 +17,23 @@ app.get("/", (c) => {
 });
 
 // 01_user一覧を取得
-app.get("/users", async (c) => {
+const listUsers = async (c: Context) => {
   const users = await sql`SELECT * FROM users`;
   return c.json(users);
-});
+};
+
+app.get("/users", listUsers);
+app.get("/users/", listUsers);
 
 // 02_user詳細を取得
-app.get("/users/:id", async (c) => {
+const getUserById = async (c: Context) => {
   const id = c.req.param("id");
   const users = await sql`SELECT * FROM users WHERE id = ${id}`;
   return c.json(users);
-});
+};
+
+app.get("/users/:id", getUserById);
+app.get("/users/:id/", getUserById);
 
 // 03_userを追加
 app.post("/users/add", async (c) => {
@@ -67,7 +73,7 @@ app.post("/users/login", async (c) => {
   }
 
   const users = await sql`SELECT * FROM users WHERE email = ${email}`;
-  
+
   if (users.length === 0) {
     return c.json({ message: "ユーザーが見つかりません" }, 404);
   }
