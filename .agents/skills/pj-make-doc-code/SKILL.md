@@ -26,7 +26,7 @@ description: API 設計書を作成し、それを元に実装する
 `pj-make-doc-code "内容"` を参考に以下を作成する。
 
 - `docs/api-specification.md`
-- `docs/er-diagram.md`
+- `docs/er-diagram.mmd`
 
 API 仕様書には以下を含める。
 
