@@ -18,6 +18,23 @@
 
 ## エンドポイント一覧
 
+API番号 メソッド エンドポイント 機能
+API-000 /healthcheck ヘルスチェック
+API-001 POST /users/add ユーザー新規登録
+API-002 POST /users/login ログイン
+API-003 GET /addresses 住所一覧取得
+API-004 POST /addresses 住所登録
+API-005 GET /products 商品一覧取得
+API-006 GET /products/:id 商品詳細取得
+API-007 GET /carts/me カート取得
+API-008 POST /carts/items カートへ商品追加
+API-009 PATCH /cart-items/:id カート商品の数量更新
+API-010 DELETE /cart-items/:id カート商品削除
+API-011 POST /orders 注文作成
+API-012 GET /orders 注文一覧取得
+API-013 GET /orders/:id 注文詳細取得
+API-014 POST /payments 決済情報作成
+
 ### ユーザー
 
 #### `POST /users/add`
@@ -162,6 +179,8 @@
 ]
 ```
 
+- status:  'draft', 'active', 'archived' 
+
 #### `GET /products/:id`
 
 商品詳細を取得する。
@@ -281,14 +300,14 @@
 
 ## エラー仕様
 
-| ステータス | 意味 |
-|---|---|
-| `400` | 入力不備 |
-| `401` | 認証失敗 |
-| `403` | 権限不足 |
-| `404` | データなし |
-| `409` | 重複・競合 |
-| `500` | サーバーエラー |
+| ステータス | 意味           |
+| ---------- | -------------- |
+| `400`      | 入力不備       |
+| `401`      | 認証失敗       |
+| `403`      | 権限不足       |
+| `404`      | データなし     |
+| `409`      | 重複・競合     |
+| `500`      | サーバーエラー |
 
 ## 実装メモ
 
