@@ -1,6 +1,7 @@
 import { Hono, type Context } from "hono";
 import { neon } from "@neondatabase/serverless";
 import * as bcrypt from "bcrypt";
+import { app as healthcheck } from "../routes/healthcheck/get-healthcheck";
 
 export const app = new Hono();
 
@@ -12,9 +13,7 @@ const welcomeStrings = [
 ];
 
 // API-000 /healthcheck ヘルスチェック
-app.get("/", (c) => {
-  return c.text(welcomeStrings.join("\n\n"));
-});
+app.route("/", healthcheck);
 
 // 01_user一覧を取得
 // const listUsers = async (c: Context) => {
@@ -87,7 +86,7 @@ app.post("/users/login", async (c) => {
       message: "ログイン成功",
       user: { id: user.id, name: user.name, email: user.email },
     },
-    200
+    200,
   );
 });
 

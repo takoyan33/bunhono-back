@@ -35,283 +35,126 @@ API-012 GET /orders 注文一覧取得
 API-013 GET /orders/:id 注文詳細取得
 API-014 POST /payments 決済情報作成
 
-### ユーザー
+## API一覧（概要）
 
-#### `POST /users/add`
+### API-000 `GET /healthcheck`
 
-ユーザーを新規作成する。
+**概要**
 
-**Request**
+APIサーバーが正常に起動しているかを確認するためのヘルスチェックAPIです。
 
-```json
-{
-  "name": "Taro",
-  "email": "taro@example.com",
-  "password": "password123"
-}
-```
+---
 
-**Response 201**
-
-```json
-{
-  "id": "uuid",
-  "name": "Taro",
-  "email": "taro@example.com",
-  "created_at": "2026-06-26T00:00:00.000Z"
-}
-```
+### API-001 `POST /users/add`
 
-**Validation**
+**概要**
 
-- `name` は必須
-- `email` は必須
-- `password` は必須
-- `email` は重複不可
+ユーザーを新規登録します。
+登録時にパスワードはハッシュ化して保存します。
 
-**Error**
+---
 
-- `400` name, email, password の不足
-- `409` email 重複
+### API-002 `POST /users/login`
 
-#### `POST /users/login`
+**概要**
 
-ログインを行う。
+メールアドレスとパスワードでログイン認証を行います。
+認証成功時はユーザー情報を返却します。
 
-**Request**
+---
 
-```json
-{
-  "email": "taro@example.com",
-  "password": "password123"
-}
-```
+### API-003 `GET /addresses`
 
-**Response 200**
+**概要**
 
-```json
-{
-  "message": "ログイン成功",
-  "user": {
-    "id": "uuid",
-    "name": "Taro",
-    "email": "taro@example.com"
-  }
-}
-```
+ログイン中のユーザーに登録されている住所一覧を取得します。
 
-**Validation**
+---
 
-- `email` は必須
-- `password` は必須
+### API-004 `POST /addresses`
 
-**Error**
+**概要**
 
-- `400` 必須項目不足
-- `404` ユーザーが存在しない
-- `401` パスワード不一致
+ログイン中のユーザーの配送先住所を新規登録します。
 
-### 住所
+---
 
-#### `GET /addresses`
+### API-005 `GET /products`
 
-ログインユーザーの住所一覧を取得する。
+**概要**
 
-**Response 200**
+公開中（active）の商品一覧を取得します。
 
-```json
-[
-  {
-    "id": "uuid",
-    "user_id": "uuid",
-    "name": "Taro",
-    "postal_code": "100-0001",
-    "prefecture": "東京都",
-    "city": "千代田区",
-    "street": "1-1-1",
-    "building": "ABCビル",
-    "phone": "090-0000-0000",
-    "is_default": true
-  }
-]
-```
+---
 
-#### `POST /addresses`
+### API-006 `GET /products/:id`
 
-住所を追加する。
+**概要**
 
-**Request**
+指定された商品の詳細情報を取得します。
 
-```json
-{
-  "name": "Taro",
-  "postal_code": "100-0001",
-  "prefecture": "東京都",
-  "city": "千代田区",
-  "street": "1-1-1",
-  "building": "ABCビル",
-  "phone": "090-0000-0000",
-  "is_default": true
-}
-```
+---
 
-**Validation**
+### API-007 `GET /carts/me`
 
-- `name`, `postal_code`, `prefecture`, `city`, `street` は必須
+**概要**
 
-### 商品
+ログイン中のユーザーのショッピングカート情報を取得します。
 
-#### `GET /products`
+---
 
-公開中の商品一覧を取得する。
+### API-008 `POST /carts/items`
 
-**Response 200**
+**概要**
 
-```json
-[
-  {
-    "id": "uuid",
-    "name": "T-shirt",
-    "slug": "t-shirt",
-    "price": 3000,
-    "status": "active"
-  }
-]
-```
+商品をショッピングカートへ追加します。
 
-- status:  'draft', 'active', 'archived' 
+---
 
-#### `GET /products/:id`
+### API-009 `PATCH /cart-items/:id`
 
-商品詳細を取得する。
+**概要**
 
-**Response 200**
+ショッピングカート内の商品の数量を変更します。
 
-```json
-{
-  "id": "uuid",
-  "name": "T-shirt",
-  "description": "sample",
-  "price": 3000,
-  "status": "active",
-  "images": [],
-  "variants": []
-}
-```
+---
 
-**Error**
+### API-010 `DELETE /cart-items/:id`
 
-- `404` 商品が存在しない
+**概要**
 
-### カート
+ショッピングカートから指定した商品を削除します。
 
-#### `GET /carts/me`
+---
 
-ログインユーザーのカートを取得する。
+### API-011 `POST /orders`
 
-#### `POST /carts/items`
+**概要**
 
-カートに商品を追加する。
+カート内の商品をもとに注文を作成します。
+注文と注文明細を同一トランザクションで登録します。
 
-**Request**
+---
 
-```json
-{
-  "product_variant_id": "uuid",
-  "quantity": 1
-}
-```
+### API-012 `GET /orders`
 
-**Validation**
+**概要**
 
-- `product_variant_id` は必須
-- `quantity` は 1 以上
+ログイン中のユーザーの注文履歴一覧を取得します。
 
-#### `PATCH /cart-items/:id`
+---
 
-カート明細の数量を更新する。
+### API-013 `GET /orders/:id`
 
-#### `DELETE /cart-items/:id`
+**概要**
 
-カート明細を削除する。
+指定した注文の詳細情報を取得します。
 
-### 注文
+---
 
-#### `POST /orders`
+### API-014 `POST /payments`
 
-カート内容から注文を作成する。
+**概要**
 
-**Request**
-
-```json
-{
-  "address_id": "uuid"
-}
-```
-
-**Response 201**
-
-```json
-{
-  "id": "uuid",
-  "order_number": "ORD-20260626-0001",
-  "status": "pending",
-  "total_amount": 4500
-}
-```
-
-**Validation**
-
-- `address_id` は必須
-- カートが空の場合は作成不可
-
-#### `GET /orders`
-
-ログインユーザーの注文一覧を取得する。
-
-#### `GET /orders/:id`
-
-注文詳細を取得する。
-
-**Error**
-
-- `404` 注文が存在しない
-
-### 決済
-
-#### `POST /payments`
-
-注文に対して決済情報を作成する。
-
-**Request**
-
-```json
-{
-  "order_id": "uuid",
-  "provider": "stripe",
-  "payment_intent_id": "pi_xxx"
-}
-```
-
-**Validation**
-
-- `order_id` は必須
-- `provider` は必須
-
-## エラー仕様
-
-| ステータス | 意味           |
-| ---------- | -------------- |
-| `400`      | 入力不備       |
-| `401`      | 認証失敗       |
-| `403`      | 権限不足       |
-| `404`      | データなし     |
-| `409`      | 重複・競合     |
-| `500`      | サーバーエラー |
-
-## 実装メモ
-
-- `users` のような公開 API は末尾スラッシュ両対応にしてもよい
-- 商品一覧は公開、カート・注文・住所は認証前提にする
-- 注文時は `orders` と `order_items` を同一トランザクションで作成する
-- 注文確定時に `product_variants.stock_quantity` を更新する
+注文に対する決済情報を登録します。
+決済サービス（Stripeなど）の決済情報を保存します。
