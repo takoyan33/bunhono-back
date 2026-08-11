@@ -1,0 +1,137 @@
+erDiagram
+  USERS ||--o{ ADDRESSES : has
+  USERS ||--|| CARTS : owns
+  USERS ||--o{ ORDERS : places
+
+  CATEGORIES ||--o{ PRODUCTS : groups
+  PRODUCTS ||--o{ PRODUCT_IMAGES : has
+  PRODUCTS ||--o{ PRODUCT_VARIANTS : has
+
+  CARTS ||--o{ CART_ITEMS : contains
+  PRODUCT_VARIANTS ||--o{ CART_ITEMS : selected_as
+
+  ADDRESSES ||--o{ ORDERS : used_for
+  ORDERS ||--o{ ORDER_ITEMS : includes
+  ORDERS ||--|| PAYMENTS : paid_by
+
+  PRODUCTS ||--o{ ORDER_ITEMS : referenced_by
+  PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : referenced_by
+
+  USERS {
+    uuid id PK
+    text name
+    text email UK
+    text password
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  ADDRESSES {
+    uuid id PK
+    uuid user_id FK
+    text name
+    text postal_code
+    text prefecture
+    text city
+    text street
+    text building
+    text phone
+    boolean is_default
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  CATEGORIES {
+    uuid id PK
+    text name UK
+    text slug UK
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  PRODUCTS {
+    uuid id PK
+    text name
+    text description
+    text slug UK
+    integer price
+    text status
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  PRODUCT_IMAGES {
+    uuid id PK
+    uuid product_id FK
+    text image_url
+    integer sort_order
+    timestamp created_at
+  }
+
+  PRODUCT_VARIANTS {
+    uuid id PK
+    uuid product_id FK
+    text sku UK
+    text variant_name
+    integer price
+    integer stock_quantity
+    boolean is_active
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  CARTS {
+    uuid id PK
+    uuid user_id FK
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  CART_ITEMS {
+    uuid id PK
+    uuid cart_id FK
+    uuid product_variant_id FK
+    integer quantity
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  ORDERS {
+    uuid id PK
+    uuid user_id FK
+    uuid address_id FK
+    text order_number UK
+    text status
+    integer subtotal_amount
+    integer shipping_amount
+    integer discount_amount
+    integer tax_amount
+    integer total_amount
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  ORDER_ITEMS {
+    uuid id PK
+    uuid order_id FK
+    uuid product_id FK
+    uuid product_variant_id FK
+    text product_name_snapshot
+    text variant_name_snapshot
+    integer unit_price_snapshot
+    integer quantity
+    integer line_total
+    timestamp created_at
+  }
+
+  PAYMENTS {
+    uuid id PK
+    uuid order_id FK
+    text provider
+    text payment_intent_id UK
+    text status
+    integer amount
+    timestamp paid_at
+    timestamp created_at
+    timestamp updated_at
+  }

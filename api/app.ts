@@ -1,83 +1,39 @@
 import { Hono } from "hono";
-import { neon } from "@neondatabase/serverless";
-import * as bcrypt from "bcrypt";
+import { app as healthcheck } from "../routes/healthcheck/get-healthcheck";
+import { app as getUsers } from "../routes/users/get-users";
+import { app as getUserById } from "../routes/users/get-users-id";
+import { app as addUser } from "../routes/users/post-users-add";
+import { app as loginUser } from "../routes/users/post-users-login";
+import { app as getAddresses } from "../routes/addresses/get-addresses";
+import { app as getProducts } from "../routes/products/get-products";
+import { app as getProductById } from "../routes/products/get-products-id";
+import { app as getCartsMe } from "../routes/carts/get-carts-me";
 
 export const app = new Hono();
 
-const sql = neon(process.env.DATABASE_URL!);
+// API-000 /healthcheck ヘルスチェック
+app.route("/", healthcheck);
 
-const welcomeStrings = [
-  "Hello Hono!",
-  "To learn more about Hono on Vercel, visit https://vercel.com/docs/frameworks/backend/hono",
-];
+// API-001 GET /users ユーザー一覧取得
+app.route("/", getUsers);
 
-// 0_healthcheck
-app.get("/", (c) => {
-  return c.text(welcomeStrings.join("\n\n"));
-});
+// API-002 GET /users/:id ユーザー詳細取得
+app.route("/", getUserById);
 
-// 01_user一覧を取得
-app.get("/users", async (c) => {
-  const users = await sql`SELECT * FROM users`;
-  return c.json(users);
-});
+// API-003 POST /users/add ユーザー新規登録
+app.route("/", addUser);
 
-// 02_user詳細を取得
-app.get("/users/:id", async (c) => {
-  const id = c.req.param("id");
-  const users = await sql`SELECT * FROM users WHERE id = ${id}`;
-  return c.json(users);
-});
+// API-004 POST /users/login ログイン
+app.route("/", loginUser);
 
-// 03_userを追加
-app.post("/users/add", async (c) => {
-  const body = await c.req.json();
-  const name: string = body["name"];
-  const email: string = body["email"];
-  const password: string = body["password"];
+// API-005 GET /addresses 住所一覧取得
+app.route("/", getAddresses);
 
-  if (!name) {
-    return c.json({ message: "name は必須です" }, 400);
-  }
-  if (!email) {
-    return c.json({ message: "email は必須です" }, 400);
-  }
-  if (!password) {
-    return c.json({ message: "password は必須です" }, 400);
-  }
+// API-006 GET /products 商品一覧取得
+app.route("/", getProducts);
 
-  // パスワードのハッシュ化
-  const hashedPassword = await bcrypt.hash(password, 10);
+// API-007 GET /products/:id 商品詳細取得
+app.route("/", getProductById);
 
-  const users =
-    await sql`INSERT INTO users (name, email, password) VALUES (${name}, ${email}, ${hashedPassword}) RETURNING *`;
-
-  return c.json(users[0], 201);
-});
-
-// 認証
-// 04_userを認証
-app.post("/users/login", async (c) => {
-  const body = await c.req.json();
-  const email = body["email"];
-  const password = body["password"];
-
-  if (!password || !email) {
-    return c.json({ message: "email と password は必須です" }, 400);
-  }
-
-  const users = await sql`SELECT * FROM users WHERE email = ${email}`;
-  
-  if (users.length === 0) {
-    return c.json({ message: "ユーザーが見つかりません" }, 404);
-  }
-
-  const user = users[0];
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    return c.json({ message: "パスワードが間違っています" }, 401);
-  }
-
-  return c.json({ message: "ログイン成功", user: { id: user.id, name: user.name, email: user.email } }, 200);
-});
+// API-008 GET /carts/me カート取得
+app.route("/", getCartsMe);
