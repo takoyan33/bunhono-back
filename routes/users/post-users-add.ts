@@ -1,8 +1,13 @@
 import { Hono } from "hono";
-import { hash } from "bcrypt";
-import sql from "../../api/db";
+import { hash } from "bcryptjs"; // Workers 互換の bcryptjs に変更
 
-export const app = new Hono();
+// 1. D1 バインディングの型定義
+type Bindings = {
+  DB: D1Database;
+};
+
+// 2. Bindings 型を指定して Hono インスタンスを作成
+export const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/users/add", async (c) => {
   const body = await c.req.json();
@@ -20,9 +25,17 @@ app.post("/users/add", async (c) => {
     return c.json({ message: "password は必須です" }, 400);
   }
 
+  // Workers 互換のハッシュ化（bcryptjs）
   const hashedPassword = await hash(password, 10);
-  const users =
-    await sql`INSERT INTO users (name, email, password) VALUES (${name}, ${email}, ${hashedPassword}) RETURNING *`;
 
-  return c.json(users[0], 201);
+  // 3. D1 では RETURNING を使って追加したレコードを直接取得（SQLite 3.35+ 互換）
+  const newUser = await c.env.DB.prepare(
+    "INSERT INTO users (name, email, password) VALUES (?, ?, ?) RETURNING *",
+  )
+    .bind(name, email, hashedPassword)
+    .first();
+
+  return c.json(newUser, 201);
 });
+
+export default app;
