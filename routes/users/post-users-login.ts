@@ -1,8 +1,13 @@
 import { Hono } from "hono";
-import { compare } from "bcrypt";
-import sql from "../../api/db";
+import { compare } from "bcryptjs"; // Workers 互換の bcryptjs に変更
 
-export const app = new Hono();
+// 1. D1 バインディングの型定義
+type Bindings = {
+  DB: D1Database;
+};
+
+// 2. Bindings 型を指定して Hono インスタンスを作成
+export const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/users/login", async (c) => {
   const body = await c.req.json();
@@ -13,13 +18,22 @@ app.post("/users/login", async (c) => {
     return c.json({ message: "email と password は必須です" }, 400);
   }
 
-  const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+  // 3. D1 で prepare() + bind() + first() を使って email からユーザーを 1 件取得
+  const user = await c.env.DB.prepare("SELECT * FROM users WHERE email = ?")
+    .bind(email)
+    .first<{
+      id: string | number;
+      name: string;
+      email: string;
+      password: string;
+    }>();
 
-  if (users.length === 0) {
+  // 該当するユーザーが存在しない場合
+  if (!user) {
     return c.json({ message: "ユーザーが見つかりません" }, 404);
   }
 
-  const user = users[0];
+  // Workers 互換の compare (bcryptjs) でパスワード照合
   const isMatch = await compare(password, user.password);
 
   if (!isMatch) {
@@ -34,3 +48,5 @@ app.post("/users/login", async (c) => {
     200,
   );
 });
+
+export default app;

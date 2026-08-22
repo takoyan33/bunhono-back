@@ -1,6 +1,12 @@
 import { Hono } from "hono";
 
-export const app = new Hono();
+// 1. D1 バインディングの型定義
+type Bindings = {
+  DB: D1Database;
+};
+
+// 2. 型をインジェクションして Hono インスタンスを作成
+export const app = new Hono<{ Bindings: Bindings }>();
 
 /**
  * API-000
@@ -16,3 +22,6 @@ app.get("/healthcheck", async (c) => {
     200,
   );
 });
+
+// 3. 他のファイルから呼び出しやすいように default export も追加
+export default app;
