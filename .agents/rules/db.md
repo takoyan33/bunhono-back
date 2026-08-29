@@ -1,50 +1,87 @@
 # データベース設計・SQLルール
 
-このプロジェクトは Neon(PostgreSQL) を利用します。
+このプロジェクトは PostgreSQL を利用します。
 
 ---
 
 # 基本方針
 
-- PostgreSQL の標準機能を利用する
-- SQL は可読性を重視する
+- Cloudflare D1（SQLite 互換）の標準機能を利用する
+- SQL は可読性を重視し、プレースホルダー（`?`）を徹底する
 - テーブル設計は正規化を基本とする
-- 必要以上に複雑な SQL を書かない
-- トランザクションを適切に利用する
+- D1 の従量課金（走査行数）を意識し、`SELECT *` を避けてインデックスを適切に設定する
+- データベース操作は環境変数ではなく、Worker の `c.env.DB` バインディングを介して実行する
 
 ---
 
-# 接続
+# 接続・バインディング
 
-DATABASE_URL
-
-を利用する
-
-環境変数が無い場合は起動を失敗させる
+- `c.env.DB`（`D1Database`）を利用する
+- `DATABASE_URL` などの接続文字列は利用しない
+- ローカル環境では `wrangler.jsonc` の D1 バインディング設定に基づいて `wrangler dev` 上で動作させる
 
 ---
 
 # テーブル設計
 
-主キー
+### 主なカラム構成
 
-id
+| カラム名     | 説明         | 推奨型                                                   |
+| ------------ | ------------ | -------------------------------------------------------- |
+| `id`         | 主キー       | `TEXT` (UUID) または `INTEGER PRIMARY KEY AUTOINCREMENT` |
+| `created_at` | 作成日時     | `TEXT` (`DEFAULT (CURRENT_TIMESTAMP)`)                   |
+| `updated_at` | 更新日時     | `TEXT`                                                   |
+| `deleted_at` | 論理削除日時 | `TEXT` (必要に応じて設定)                                |
 
-UUID または SERIAL
+---
 
-作成日時
+# 命名規則
 
-created_at
+- **テーブル名**: 小文字の複数形 (`users`, `products`, `orders`)
+- **カラム名**: `snake_case` (`created_at`, `updated_at`, `user_id`)
 
-更新日時
+---
 
-updated_at
+# データ型（D1 / SQLite 互換）
 
-必要なら
+SQLite のストレージクラス（`TEXT`, `INTEGER`, `REAL`, `BLOB`）に準拠します。
 
-deleted_at
+| データ種別    | 設定する型 | 補足                                                        |
+| ------------- | ---------- | ----------------------------------------------------------- |
+| 文字列 / UUID | `TEXT`     | メールアドレス、UUID、テキスト全般                          |
+| 金額 / 数量   | `INTEGER`  | 小数点を扱う場合は `REAL` または最小単位（銭/分）で整数管理 |
+| 日時          | `TEXT`     | ISO8601 形式の文字列（例: `2026-08-22T08:00:00Z`）          |
+| 真偽値        | `INTEGER`  | `0` (false) または `1` (true)                               |
 
-で論理削除する
+---
+
+# 制約
+
+必要に応じて以下を設定し、データ整合性を保ちます。
+
+- `PRIMARY KEY`
+- `UNIQUE`
+- `NOT NULL`
+- `CHECK`
+- `FOREIGN KEY` (外部キー制約)
+
+---
+
+# セキュリティルール
+
+### email
+
+- `UNIQUE` 制約を付与する
+
+### password
+
+- 平文保存は絶対禁止
+- Cloudflare Workers 互換の `bcryptjs` 等を用いてハッシュ化した文字列のみを保存する
+
+### SQL Injection 対策
+
+- **文字列連結・テンプレート文字列による埋め込みは絶対禁止**
+- 必ず D1 の `.prepare().bind(...)` プレースホルダー（`?`）を利用する
 
 ---
 
