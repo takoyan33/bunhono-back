@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from "bun:test";
+import { describe, test, expect } from "bun:test";
 import { app } from "./app";
 
 // メモリ上にデータを保持する簡易インメモリ DB モック

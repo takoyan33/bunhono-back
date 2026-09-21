@@ -27,12 +27,14 @@ app.post("/users/add", async (c) => {
 
   // Workers 互換のハッシュ化（bcryptjs）
   const hashedPassword = await hash(password, 10);
+  const id = crypto.randomUUID();
 
   // 3. D1 では RETURNING を使って追加したレコードを直接取得（SQLite 3.35+ 互換）
+  // SQL インジェクション攻撃を防ぐため、バインドを使用して値をエスケープしている
   const newUser = await c.env.DB.prepare(
-    "INSERT INTO users (name, email, password) VALUES (?, ?, ?) RETURNING *",
+    "INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?) RETURNING *"
   )
-    .bind(name, email, hashedPassword)
+    .bind(id, name, email, hashedPassword)
     .first();
 
   return c.json(newUser, 201);

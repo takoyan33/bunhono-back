@@ -5,35 +5,42 @@ import { app as getUserById } from "../routes/users/get-users-id";
 import { app as addUser } from "../routes/users/post-users-add";
 import { app as loginUser } from "../routes/users/post-users-login";
 import { app as getAddresses } from "../routes/addresses/get-addresses";
+import { app as addAddress } from "../routes/addresses/post-addresses";
 import { app as getProducts } from "../routes/products/get-products";
 import { app as getProductById } from "../routes/products/get-products-id";
 import { app as getCartsMe } from "../routes/carts/get-carts-me";
-
+import { app as addCartItem } from "../routes/carts/post-carts-item";
 export const app = new Hono();
 
 // API-000 /healthcheck ヘルスチェック
 app.route("/", healthcheck);
 
-// API-001 GET /users ユーザー一覧取得
+// API番号なし GET /users ユーザー一覧取得
 app.route("/", getUsers);
 
-// API-002 GET /users/:id ユーザー詳細取得
+// API番号なし GET /users/:id ユーザー詳細取得
 app.route("/", getUserById);
 
-// API-003 POST /users/add ユーザー新規登録
+// API-001 POST /users/add ユーザー新規登録
 app.route("/", addUser);
 
-// API-004 POST /users/login ログイン
+// API-002 POST /users/login ログイン
 app.route("/", loginUser);
 
-// API-005 GET /addresses 住所一覧取得
+// API-003 GET /addresses 住所一覧取得
 app.route("/", getAddresses);
 
-// API-006 GET /products 商品一覧取得
+// API-004 POST /addresses 住所登録
+app.route("/", addAddress);
+
+// API-005 GET /products 商品一覧取得
 app.route("/", getProducts);
 
-// API-007 GET /products/:id 商品詳細取得
+// API-006 GET /products/:id 商品詳細取得
 app.route("/", getProductById);
 
-// API-008 GET /carts/me カート取得
+// API-007 GET /carts/me カート取得
 app.route("/", getCartsMe);
+
+// API-008 POST /carts/items カートへ商品追加
+app.route("/", addCartItem);

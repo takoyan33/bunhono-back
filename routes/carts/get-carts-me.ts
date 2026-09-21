@@ -1,15 +1,31 @@
 import { Hono } from "hono";
 
-// 1. D1 バインディングの型を設定
 type Bindings = {
   DB: D1Database;
 };
 
-// 型を渡して Hono をインスタンス化
 export const app = new Hono<{ Bindings: Bindings }>();
 
 app.get("/carts/me", async (c) => {
-  // 2. c.env.DB からクエリを実行し、results を取得
-  const { results } = await c.env.DB.prepare("SELECT * FROM cartsMe").all();
+  // 仮のログインユーザーID（認証ミドルウェア等から取得）
+  const userId = "17ef47fc-6434-4661-aaed-ce41a5276ca6";
+
+  // carts テーブルと cart_items, products を結合して取得するクエリ例
+  const { results } = await c.env.DB.prepare(
+    `SELECT 
+       ci.id AS cart_item_id,
+       ci.quantity,
+       p.id AS product_id,
+       p.name AS product_name,
+       p.price,
+       p.image_url
+     FROM carts c
+     JOIN cart_items ci ON c.id = ci.cart_id
+     JOIN products p ON ci.product_id = p.id
+     WHERE c.user_id = ?`,
+  )
+    .bind(userId)
+    .all();
+
   return c.json(results);
 });

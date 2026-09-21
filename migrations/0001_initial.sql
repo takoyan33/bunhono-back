@@ -1,4 +1,6 @@
 -- migrations/0001_initial.sql
+
+-- ユーザーテーブル (実装済み)
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
