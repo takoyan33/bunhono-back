@@ -6,33 +6,13 @@ type Bindings = {
 
 export const app = new Hono<{ Bindings: Bindings }>();
 
-// API-009: カート商品の数量更新
-app.patch("/carts/item/:id", async (c) => {
+// API-010: カート商品の削除
+app.delete("/carts/item/:id", async (c) => {
   const id = c.req.param("id");
 
   // Path Parameter の存在チェック
   if (!id) {
     return c.json({ message: "id は必須です。" }, 400);
-  }
-
-  // Body の取得とバリデーション
-  let body: { quantity?: number };
-  try {
-    body = await c.req.json();
-  } catch {
-    return c.json({ message: "リクエストボディが無効です。" }, 400);
-  }
-
-  const { quantity } = body;
-
-  // バリデーション: quantity は必須かつ 1 以上
-  if (
-    quantity === undefined ||
-    quantity === null ||
-    typeof quantity !== "number" ||
-    quantity < 1
-  ) {
-    return c.json({ message: "quantity は 1 以上で指定してください。" }, 400);
   }
 
   // カート商品の存在確認
@@ -52,11 +32,11 @@ app.patch("/carts/item/:id", async (c) => {
     return c.json({ message: "カート商品が見つかりません。" }, 404);
   }
 
-  // 数量の更新実行 (SQLite/D1 の RETURNING 句を使用)
-  const updatedItem = await c.env.DB.prepare(
-    "UPDATE cart_items SET quantity = ? WHERE id = ? RETURNING id, cart_id, product_id AS product_variant_id, quantity, created_at"
+  // 削除実行 (SQLite/D1 の RETURNING 句を使用)
+  const deletedItem = await c.env.DB.prepare(
+    "DELETE FROM cart_items WHERE id = ? RETURNING id, cart_id, product_id AS product_variant_id, quantity, created_at"
   )
-    .bind(quantity, id)
+    .bind(id)
     .first<{
       id: string;
       cart_id: string;
@@ -65,13 +45,13 @@ app.patch("/carts/item/:id", async (c) => {
       created_at: string;
     }>();
 
-  if (!updatedItem) {
-    return c.json({ message: "更新処理に失敗しました。" }, 500);
+  if (!deletedItem) {
+    return c.json({ message: "削除処理に失敗しました。" }, 500);
   }
 
   // レスポンス整形 (ISO形式のupdated_atを追加)
   const responseData = {
-    ...updatedItem,
+    ...deletedItem,
     updated_at: new Date().toISOString(),
   };
 

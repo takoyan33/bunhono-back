@@ -10,6 +10,9 @@ import { app as getProducts } from "../routes/products/get-products";
 import { app as getProductById } from "../routes/products/get-products-id";
 import { app as getCartsMe } from "../routes/carts/get-carts-me";
 import { app as addCartItem } from "../routes/carts/post-carts-item";
+import { app as patchCartsItem } from "../routes/carts/patch-carts-item";
+import { app as deleteCartsItem } from "../routes/carts/delete-carts-item";
+
 export const app = new Hono();
 
 // API-000 /healthcheck ヘルスチェック
@@ -44,3 +47,9 @@ app.route("/", getCartsMe);
 
 // API-008 POST /carts/items カートへ商品追加
 app.route("/", addCartItem);
+
+// API-009 PATCH /carts/item/:id カート商品の数量更新
+app.route("/", patchCartsItem);
+
+// API-010 DELETE /carts/item/:id カート商品の削除
+app.route("/", deleteCartsItem);

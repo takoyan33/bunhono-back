@@ -13,11 +13,11 @@
 - [x] **API-006** : 商品詳細取得 (`GET /products/:id`)
 - [x] **API-007** : カート取得 (`GET /carts/me`)
 - [x] **API-008** : カートへ商品追加 (`POST /carts/items`)
-- [ ] **API-009** : カート商品の数量更新 (`PATCH /cart-items/:id`)
-- [ ] **API-010** : カート商品削除 (`DELETE /cart-items/:id`)
+- [x] **API-009** : カート商品の数量更新 (`PATCH /carts/item/:id`)
+- [x] **API-010** : カート商品削除 (`DELETE /carts/item/:id`)
 - [ ] **API-011** : 注文作成 (`POST /orders`)
-- [] **API-012** : 注文一覧取得 (`GET /orders`)
-- [] **API-013** : 注文詳細取得 (`GET /orders/:id`)
+- [ ] **API-012** : 注文一覧取得 (`GET /orders`)
+- [ ] **API-013** : 注文詳細取得 (`GET /orders/:id`)
 - [ ] **API-014** : 決済情報作成 (`POST /payments`)
 
 ---
